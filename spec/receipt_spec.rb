@@ -1,5 +1,6 @@
 require 'spec_helper'
 
+
 describe Venice::Receipt do
   describe "parsing the response" do
     let(:response) {
@@ -30,19 +31,21 @@ describe Venice::Receipt do
     }
     subject { Venice::Receipt.new(response['receipt']) }
 
-    its(:quantity) { 1 }
-    its(:product_id) { "com.foo.product1" }
-    its(:transaction_id) { "1000000070107235" }
-    its(:unique_identifier) { "0000b031c818" }
-    its(:purchase_date) { should be_instance_of DateTime }
-    its(:bvrs) { "0.1" }
-    its(:bid) { "com.foo.bar" }
-    its(:original) { should be_instance_of Venice::Receipt }
-    its(:expires_at) { should be_instance_of Time }
+    it "should return the following values" do
+      expect(:quantity).to eq(1)
+      expect(:product_id).to eq("com.foo.product1")
+      expect(:transaction_id).to eq("1000000070107235")
+      expect(:unique_identifier).to eq("0000b031c818")
+      expect(:purchase_date).to be_a DateTime
+      expect(:bvrs).to eq("0.1")
+      expect(:bid).to eq("com.foo.bar")
+      expect(:original).to be_a Venice::Receipt 
+      expect(:expires_at).to be_a Time 
+    end
 
     it "should parse the origin attributes" do
-      subject.original.transaction_id.should == "1000000061051565"
-      subject.original.purchase_date.should be_instance_of DateTime
+      expect(subject.original.transaction_id).to eq("1000000061051565")
+      expect(subject.original.purchase_date).to be_a DateTime
     end
 
     describe "#verify!" do
@@ -83,7 +86,7 @@ describe Venice::Receipt do
         end
 
         it "should create a latest expired receipt" do
-          receipt.latest_expired.should_not be_nil
+          expect(receipt.latest_expired).not_to be_nil
         end
       end
     end
