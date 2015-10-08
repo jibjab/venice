@@ -38,6 +38,21 @@ module Venice
     # For auto-renewable subscriptions, returns the date the subscription will expire
     attr_reader :expires_at
 
+    #For a transaction that was canceled by Apple customer support, the time and date of the cancellation
+    attr_reader :cancellation_date
+
+    #The primary key for identifying subscription purchases
+    attr_reader :web_order_line_item_id
+
+    #The app’s version number.
+    attr_reader :application_version
+
+    #The date when the app receipt was created.
+    attr_reader :creation_date
+
+    #The date that the app receipt expires.
+    attr_reader :expiration_date
+
     def initialize(attributes = {})
       @quantity = Integer(attributes['quantity']) if attributes['quantity']
       @product_id = attributes['product_id']
@@ -47,14 +62,20 @@ module Venice
       @version_external_identifier = attributes['version_external_identifier']
       @bid = attributes['bid']
       @bvrs = attributes['bvrs']
-
       # expires_date is in ms since the Epoch, Time.at expects seconds
       @expires_at = Time.at(attributes['expires_date'].to_i / 1000) if attributes['expires_date']
 
+      @application_version = attributes['product_id']
+      @cancellation_date = DateTime.parse(attributes['cancellation_date']) if attributes['cancellation_date']
+      @web_order_line_item_id = Integer(attributes['web_order_line_item_id']) if attributes['web_order_line_item_id']
+      @creation_date = DateTime.parse(attributes['creation_date']) if attributes['creation_date']
+      @expiration_date = DateTime.parse(attributes['expiration_date']) if attributes['expiration_date']
+
+
       if attributes['original_transaction_id'] || attributes['original_purchase_date']
         original_attributes = {
-          'transaction_id' => attributes['original_transaction_id'],
-          'purchase_date' => attributes['original_purchase_date']
+            'transaction_id' => attributes['original_transaction_id'],
+            'purchase_date' => attributes['original_purchase_date']
         }
 
         self.original = Receipt.new(original_attributes)
@@ -63,17 +84,22 @@ module Venice
 
     def to_h
       {
-        :quantity => @quantity,
-        :product_id => @product_id,
-        :transaction_id => @transaction_id,
-        :purchase_date => (@purchase_date.httpdate rescue nil),
-        :original_transaction_id => (@original.transaction_id rescue nil),
-        :original_purchase_date => (@original.purchase_date.httpdate rescue nil),
-        :app_item_id => @app_item_id,
-        :version_external_identifier => @version_external_identifier,
-        :bid => @bid,
-        :bvrs => @bvrs,
-        :expires_at => (@expires_at.httpdate rescue nil)
+          :quantity => @quantity,
+          :product_id => @product_id,
+          :transaction_id => @transaction_id,
+          :purchase_date => (@purchase_date.httpdate rescue nil),
+          :original_transaction_id => (@original.transaction_id rescue nil),
+          :original_purchase_date => (@original.purchase_date.httpdate rescue nil),
+          :app_item_id => @app_item_id,
+          :version_external_identifier => @version_external_identifier,
+          :bid => @bid,
+          :bvrs => @bvrs,
+          :expires_at => (@expires_at.httpdate rescue nil),
+          :cancellation_date => (@cancellation_date.httpdate rescue nil),
+          :web_order_line_item_id => @web_order_line_item_id,
+          :application_version => @application_version,
+          :creation_date => @creation_date,
+          :expiration_date => @expiration_date
       }
     end
 
